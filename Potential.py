@@ -30,19 +30,24 @@ class Coulombic(CoulombCentrifugalBarrier):
 		return V
 
 class Dielectric(CoulombCentrifugalBarrier):
-	def __init__(self, l, V_0, R, dielectricConstant):
+	def __init__(self, l, V_0, R, delta, dielectricConstant):
 		CoulombCentrifugalBarrier.__init__(self, l, V_0, R)
 		self.dielectricConstant = dielectricConstant
+		self.delta = delta
 
 	def getDielectricConstant(self):
 		return self.dielectricConstant
 
+	def getDelta(self):
+		return self.delta
+
 	def __call__(self, r):
 		l = self.getAngularQuantumNum()
 		R = self.getShellRadius()
+		delta = self.getDelta()
 		dielectricConstant = self.getDielectricConstant()
-		if r > R:
-			V = -((dielectricConstant + 1)*R**3)/(2*(dielectricConstant + 2)*r**2*(r**2 - R**2)) + 1/r + l*(l+1)/(2*r**2)
+		if r > R + delta:
+			V = -((dielectricConstant - 1)*R**3)/(2*(dielectricConstant + 2)*r**2*(r**2 - R**2)) + 1/r + l*(l+1)/(2*r**2)
 		else:
 			V = self.getTrapPotential()
 		return V
