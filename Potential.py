@@ -3,12 +3,12 @@ class Potential(object):
 
 class CoulombCentrifugalBarrier(Potential):
 	def __init__(self, l, V_0, R):
-		self.angularQNum = l
+		self.angularQuantumNum = l
 		self.trapPotential = V_0
 		self.shellRadius = R
 
-	def getAngularQNum(self):
-		return self.angularQNum
+	def getAngularQuantumNum(self):
+		return self.angularQuantumNum
 
 	def getTrapPotential(self):
 		return -self.trapPotential
@@ -21,7 +21,7 @@ class Coulombic(CoulombCentrifugalBarrier):
 		CoulombCentrifugalBarrier.__init__(self, l, V_0, R)
 
 	def __call__(self, r):
-		l = self.getAngularQNum()
+		l = self.getAngularQuantumNum()
 		R = self.getShellRadius()
 		if r > R:
 			V = 1/r + l*(l+1)/(2*r**2)
@@ -30,19 +30,19 @@ class Coulombic(CoulombCentrifugalBarrier):
 		return V
 
 class Dielectric(CoulombCentrifugalBarrier):
-	def __init__(self, l, V_0, R, epsilon):
+	def __init__(self, l, V_0, R, dielectricConstant):
 		CoulombCentrifugalBarrier.__init__(self, l, V_0, R)
-		self.epsilon = epsilon
+		self.dielectricConstant = dielectricConstant
 
-	def getEpsilon(self):
-		return self.epsilon
+	def getDielectricConstant(self):
+		return self.dielectricConstant
 
 	def __call__(self, r):
-		l = self.getAngularQNum()
+		l = self.getAngularQuantumNum()
 		R = self.getShellRadius()
-		epsilon = self.getEpsilon()
+		dielectricConstant = self.getDielectricConstant()
 		if r > R:
-			V = -((epsilon + 1)*R**3)/(2*(epsilon + 2)*r**2*(r**2 - R**2)) + 1/r + l*(l+1)/(2*r**2)
+			V = -((dielectricConstant + 1)*R**3)/(2*(dielectricConstant + 2)*r**2*(r**2 - R**2)) + 1/r + l*(l+1)/(2*r**2)
 		else:
 			V = self.getTrapPotential()
 		return V
