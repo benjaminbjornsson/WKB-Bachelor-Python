@@ -1,5 +1,7 @@
 import numpy
 
+from Potential import Potential
+
 class CoulombCentrifugalBarrier(Potential):
 	def __init__(self, l, V_0, R):
 		self.angularQuantumNum = l

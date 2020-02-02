@@ -1,3 +1,5 @@
+from CoulombCentrifugalBarrier import CoulombCentrifugalBarrier
+
 class Coulombic(CoulombCentrifugalBarrier):
 	def __init__(self, l, V_0, R):
 		CoulombCentrifugalBarrier.__init__(self, l, V_0, R)

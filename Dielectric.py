@@ -1,3 +1,5 @@
+from CoulombCentrifugalBarrier import CoulombCentrifugalBarrier
+
 class Dielectric(CoulombCentrifugalBarrier):
 	def __init__(self, l, V_0, R, dielectricConstant):
 		CoulombCentrifugalBarrier.__init__(self, l, V_0, R)
