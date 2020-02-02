@@ -1,3 +1,5 @@
+import numpy
+
 class Potential(object):
 	pass
 
@@ -16,6 +18,38 @@ class CoulombCentrifugalBarrier(Potential):
 	def getShellRadius(self):
 		return self.shellRadius
 
+	def bisectionSearch(self, E, searchRange, slopeSign, epsilon):
+		lowerLimit = searchRange[0]
+		higherLimit = searchRange[1]
+		midValue = (lowerLimit + higherLimit)/2.0
+		V = self
+		while numpy.abs(V(midValue) - E) > epsilon:
+#			print([lowerLimit, midValue, higherLimit, V(lowerLimit), V(midValue), V(higherLimit)])
+			if V(midValue) > E:
+				if slopeSign > 0:
+					higherLimit = midValue
+				else:
+					lowerLimit = midValue
+			else:
+				if slopeSign > 0:
+					lowerLimit = midValue
+				else:
+					higherLimit = midValue
+			midValue = (lowerLimit + higherLimit)/2.0
+		if (V(midValue) - E) < 0:
+			if slopeSign < 0:
+				alpha = 0.99
+				while V(lowerLimit + alpha*(midValue - lowerLimit)) < E:
+					alpha = alpha**2
+				midValue = lowerLimit + alpha*(midValie - lowerLimit)
+			else:
+				alpha = 0.99
+				while V(higherLimit - alpha*(higherLimit - midValue)) < E:
+					alpha = alpha**2
+				midValue = higherLimit - alpha*(higherLimit - midValue)
+		return midValue
+		
+
 class Coulombic(CoulombCentrifugalBarrier):
 	def __init__(self, l, V_0, R):
 		CoulombCentrifugalBarrier.__init__(self, l, V_0, R)
@@ -30,10 +64,11 @@ class Coulombic(CoulombCentrifugalBarrier):
 		return V
 
 class Dielectric(CoulombCentrifugalBarrier):
-	def __init__(self, l, V_0, R, delta, dielectricConstant):
+	def __init__(self, l, V_0, R, dielectricConstant):
 		CoulombCentrifugalBarrier.__init__(self, l, V_0, R)
 		self.dielectricConstant = dielectricConstant
-		self.delta = delta
+		self.delta = 0.0
+		self.delta = self.bisectionSearch(self.getTrapPotential(), [R, R + 2.0], 1, 1e-7) - R
 
 	def getDielectricConstant(self):
 		return self.dielectricConstant
