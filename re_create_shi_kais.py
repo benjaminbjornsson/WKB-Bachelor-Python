@@ -2,6 +2,7 @@ import numpy
 import pylab
 import scipy.integrate
 from Dielectric import Dielectric
+from Coulombic import Coulombic
 
 gamma = 1e-8
 dielectricConstant = 4.4
@@ -25,9 +26,13 @@ def kappa(r, V, Energy):
 
 def tau(V, Energy, Range):
 	f = numpy.exp(scipy.integrate.quad(kappa, Range[0], Range[1], args=(V, Energy), full_output = 0, epsabs=1e-10))
-	Tr = 4/(2*f + 1/(2*f))**2
-	vinc = numpy.sqrt(2*Energy)
-	return (2*(V.getShellRadius() + V.getDelta()))/(Tr*vinc)
+	Tr = 4.0/(2.0*f + 1.0/(2.0*f))**2
+	vinc = numpy.sqrt(2.0*Energy)
+	if isinstance(V, Dielectric):
+		rs = V.getShellRadius() + V.getDelta()
+	else:
+		rs = V.getShellRadius()
+	return (2.0*rs)/(Tr*vinc)
 
 NList = [20, 40, 60, 64, 68, 70, 74, 78, 82, 84, 86, 88, 90]
 
@@ -43,12 +48,21 @@ for N in NList:
 	PotentialList = []
 	for l in angularQuantumNumber:
 		PotentialList.append(Dielectric(l, V_0, shellRadius(N), dielectricConstant))
-		intersectionRightList = numpy.append(intersectionRightList, [PotentialList[-1].getIntersect(Energy, rangeRight, -1, gamma)])
-		intersectionLeftList = numpy.append(intersectionLeftList, [PotentialList[-1].getIntersect(Energy, rangeLeft, 1, gamma)])
+#		intersectionRightList = numpy.append(intersectionRightList, [PotentialList[-1].getIntersect(Energy, rangeRight, -1, gamma)])
+#		intersectionLeftList = numpy.append(intersectionLeftList, [PotentialList[-1].getIntersect(Energy, rangeLeft, 1, gamma)])
+		PotentialList.append(Coulombic(l, V_0, shellRadius(N)))
 
 	lifeTimes = []
-	for l in angularQuantumNumber:
-		lifeTimes.append(format(tau(PotentialList[l], Energy, [intersectionLeftList[l], intersectionRightList[l]])[0]*timeConversionFactor, '.1e'))
+	for i in range(0, len(PotentialList)):
+		l = PotentialList[i].getAngularQuantumNum()
+		if isinstance(PotentialList[i], Dielectric):
+			leftLimit = PotentialList[i].getIntersect(Energy, rangeLeft, 1, gamma)
+		else:
+			leftLimit = shellRadius(N)
+
+		rightLimit = PotentialList[i].getIntersect(Energy, rangeRight, -1, gamma)
+		Range = [leftLimit, rightLimit]
+		lifeTimes.append(format(tau(PotentialList[i], Energy, Range)[0]*timeConversionFactor, '.1e'))
 
 	print(lifeTimes)
 	continue

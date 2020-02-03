@@ -16,6 +16,9 @@ class CoulombCentrifugalBarrier(Potential):
 
 	def getShellRadius(self):
 		return self.shellRadius
+	
+	def getIntersect(self, Energy, searchRange, slopeSign, epsilon):
+		return self.bisectionSearch(Energy, searchRange, slopeSign, epsilon)
 
 	def bisectionSearch(self, Energy, searchRange, slopeSign, epsilon):
 		lowerLimit = searchRange[0]

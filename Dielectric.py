@@ -23,6 +23,3 @@ class Dielectric(CoulombCentrifugalBarrier):
 		else:
 			V = self.getTrapPotential()
 		return V
-
-	def getIntersect(self, Energy, searchRange, slopeSign, epsilon):
-		return self.bisectionSearch(Energy, searchRange, slopeSign, epsilon)
