@@ -6,7 +6,7 @@ class Dielectric(CoulombCentrifugalBarrier):
         CoulombCentrifugalBarrier.__init__(self, l, V_0, R, UnitsOfFunction, UnitsOfVariables)
         self.dielectricConstant = dielectricConstant
         self.delta = 0.0
-        self.delta = self.bisectionSearch(self.getTrapPotential(), [R, R + 2.0], 1, 1e-7) - R
+        self.delta = self.bisectionSearch(self.getTrapPotential(), [R, R + 2.0], 1, 1e-10) - R
 
     def getDielectricConstant(self):
         return self.dielectricConstant
