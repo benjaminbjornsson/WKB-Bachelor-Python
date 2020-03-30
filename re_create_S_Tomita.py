@@ -41,7 +41,7 @@ r = numpy.linspace(0.0, 80.0, int(1e5))
 #matplotlib.pyplot.show()
 
 # Plot expected_energy and heat_capacity
-#temperature = numpy.linspace(10.0, 2000, int(1e4))
+#temperature = numpy.linspace(7.5, 2000, int(1e5))
 #fig, (ax1, ax2) = matplotlib.pyplot.subplots(1,2)
 
 #ax1.plot(temperature, expected_energy_vectorized(temperature))
@@ -51,43 +51,58 @@ r = numpy.linspace(0.0, 80.0, int(1e5))
 #matplotlib.pyplot.show()
 
 # Plot populations and rate(Fig 8. in article)
-k_B = 8.617333262145e-5                                 # eV/K
-epsilon = numpy.array([0.4, 0.2, 0.222, 0.305, 0.335])  # eV
-A_0 = 7.0e8                                             # s-1
-degeneracy_C60 = numpy.array([0.0, 1, 1, 3, 3])
+k_B = 8.617333262145e-5                                         # eV/K
+A_0 = 7.0e8                                                     # s-1
+epsilon = numpy.array([0.4, 0.200, 0.222, 0.305, 0.335])        # eV
+print('epsilon: ', epsilon)
+degeneracy_C60 = numpy.array([0, 1, 5, 9, 9])
 
-def probabilities(temperature, i):
-    denomenator = (k_B*(temperature - epsilon[i]/(2*heat_capacity(temperature))))
-    numerator = -epsilon[i]
-#    return degeneracy_C60[i]*numpy.exp(numerator/denomenator)
-    return denomenator
-    return numerator/denomenator
-    
+print('degeneracy_C60: ', degeneracy_C60)
 
-#    return degeneracy_C60[i]*numpy.exp(-(epsilon[i])/(k_B*(temperature - epsilon[i]/(2*heat_capacity(temperature)))))
+rates = numpy.array([0, 0.05, 0.70, 800, 5000])
 
-def k(temperature, i):
-    if i == 0:
-        return A_0*numpy.exp(-epsilon[i]/k_B*numpy.divide(1, temperature))
 
-temperature = numpy.linspace(100.0, 500.0, int(1e3))
 
-#fig, ax = matplotlib.pyplot.subplots()
+def k_0(temperature):
+    return A_0*numpy.exp(-epsilon[0]/k_B*numpy.divide(1, temperature))
 
-#ax.semilogy(temperature, k(temperature, 0))
+def k_1(probabilities):
+    for i in range(1, 5):
+        probabilities[i, :] = rates[i]*probabilities[i, :]
+    return numpy.sum(probabilities, axis = 0)
 
-#matplotlib.pyplot.xlim(0, 500)
-#matplotlib.pyplot.ylim(1e-1, 1e5)
+def probability(temperature, i):
+#    return (temperature - (epsilon[i] - epsilon[1])/(heat_capacity(temperature)))
+    return degeneracy_C60[i]*numpy.exp(-(epsilon[i] - epsilon[1])/(k_B*(temperature - (epsilon[i] - epsilon[1])/(2*heat_capacity(temperature)))))
 
-#matplotlib.pyplot.show()
+probability_vectorized = numpy.vectorize(probability)
 
-probabilities_vectorized = numpy.vectorize(probabilities)
+temperature = numpy.linspace(108.0, 500.0, int(1e3))
 
-fig, ax = matplotlib.pyplot.subplots()
+probabilities = numpy.zeros(shape = temperature.shape)
 
-ax.plot(temperature, probabilities_vectorized(temperature, 1))
+for i in range(1,5):
+    probabilities = numpy.vstack((probabilities, probability_vectorized(temperature, i)))
 
-#matplotlib.pyplot.xlim(0, 500)
-#matplotlib.pyplot.ylim(0.0, 1.0)
+for i in range(probabilities.shape[1]):
+    probabilities[:, i] = probabilities[:, i]/numpy.sum(probabilities[:, i])
+
+fig, (ax1, ax2) = matplotlib.pyplot.subplots(2,1)
+
+for i in range(1, 5):
+    ax1.plot(temperature, probabilities[i][:])
+
+ax1.set_xlim(100.0, 500)
+ax1.set_ylim(0.0, 1.0)
+
+ax1.yaxis.set_ticks_position('both')
+
+ax2.semilogy(temperature, k_0(temperature))
+ax2.semilogy(temperature, k_1(probabilities))
+
+ax2.set_xlim(100, 500)
+ax2.set_ylim(1e-1, 1e5)
+
+ax2.yaxis.set_ticks_position('both')
 
 matplotlib.pyplot.show()

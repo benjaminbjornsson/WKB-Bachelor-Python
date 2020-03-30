@@ -16,6 +16,7 @@ class Metallic(CoulombCentrifugalBarrier):
         delta = self.getDelta()
         if r > R + delta:
             V = -(R**3)/(2*r**2*(r**2 - R**2)) + 1/r + l*(l + 1)/(2*r**2)
+            V = -(R**3)/(r**2*(r**2 - R**2)) + 1/r + l*(l + 1)/(2*r**2)
         else:
             V = self.getTrapPotential()
         return V

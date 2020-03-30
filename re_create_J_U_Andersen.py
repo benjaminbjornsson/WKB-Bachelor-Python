@@ -27,6 +27,11 @@ degeneracy = numpy.array([1, 2,
                 1, 2, 3, 4, 5, 6,
                 1, 2, 3, 4, 5, 6, 7])
 
+print('Num degeneracy = ', numpy.sum(degeneracy))
+print('Len nu = ', len(nu))
+
+print(sorted(nu))
+
 energy = cm2eV*nu                                     # eV
 temperature = numpy.linspace(5.0, 2000.0, int(1e5))
 
